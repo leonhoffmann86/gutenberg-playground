@@ -5232,6 +5232,7 @@ __webpack_require__.d(__webpack_exports__, {
   "__experimentalGetBlockLabel": function() { return /* reexport */ getBlockLabel; },
   "__experimentalSanitizeBlockAttributes": function() { return /* reexport */ __experimentalSanitizeBlockAttributes; },
   "__unstableGetBlockProps": function() { return /* reexport */ getBlockProps; },
+  "__unstableGetInnerBlocksProps": function() { return /* reexport */ getInnerBlocksProps; },
   "__unstableSerializeAndClean": function() { return /* reexport */ __unstableSerializeAndClean; },
   "children": function() { return /* reexport */ children; },
   "cloneBlock": function() { return /* reexport */ cloneBlock; },
@@ -5277,7 +5278,7 @@ __webpack_require__.d(__webpack_exports__, {
   "registerBlockStyle": function() { return /* reexport */ registerBlockStyle; },
   "registerBlockType": function() { return /* reexport */ registerBlockType; },
   "registerBlockVariation": function() { return /* reexport */ registerBlockVariation; },
-  "serialize": function() { return /* reexport */ serialize; },
+  "serialize": function() { return /* reexport */ serializer_serialize; },
   "setCategories": function() { return /* reexport */ categories_setCategories; },
   "setDefaultBlockName": function() { return /* reexport */ setDefaultBlockName; },
   "setFreeformContentHandlerName": function() { return /* reexport */ setFreeformContentHandlerName; },
@@ -5404,7 +5405,10 @@ const DEFAULT_CATEGORIES = [{
  * @return {Object} Updated state.
  */
 
-function unprocessedBlockTypes(state = {}, action) {
+function unprocessedBlockTypes() {
+  let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  let action = arguments.length > 1 ? arguments[1] : undefined;
+
   switch (action.type) {
     case 'ADD_UNPROCESSED_BLOCK_TYPE':
       return { ...state,
@@ -5427,7 +5431,10 @@ function unprocessedBlockTypes(state = {}, action) {
  * @return {Object} Updated state.
  */
 
-function blockTypes(state = {}, action) {
+function blockTypes() {
+  let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  let action = arguments.length > 1 ? arguments[1] : undefined;
+
   switch (action.type) {
     case 'ADD_BLOCK_TYPES':
       return { ...state,
@@ -5449,16 +5456,22 @@ function blockTypes(state = {}, action) {
  * @return {Object} Updated state.
  */
 
-function blockStyles(state = {}, action) {
+function blockStyles() {
+  let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  let action = arguments.length > 1 ? arguments[1] : undefined;
+
   switch (action.type) {
     case 'ADD_BLOCK_TYPES':
       return { ...state,
         ...(0,external_lodash_namespaceObject.mapValues)((0,external_lodash_namespaceObject.keyBy)(action.blockTypes, 'name'), blockType => {
           return (0,external_lodash_namespaceObject.uniqBy)([...(0,external_lodash_namespaceObject.get)(blockType, ['styles'], []).map(style => ({ ...style,
             source: 'block'
-          })), ...(0,external_lodash_namespaceObject.get)(state, [blockType.name], []).filter(({
-            source
-          }) => 'block' !== source)], style => style.name);
+          })), ...(0,external_lodash_namespaceObject.get)(state, [blockType.name], []).filter(_ref => {
+            let {
+              source
+            } = _ref;
+            return 'block' !== source;
+          })], style => style.name);
         })
       };
 
@@ -5484,16 +5497,22 @@ function blockStyles(state = {}, action) {
  * @return {Object} Updated state.
  */
 
-function blockVariations(state = {}, action) {
+function blockVariations() {
+  let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  let action = arguments.length > 1 ? arguments[1] : undefined;
+
   switch (action.type) {
     case 'ADD_BLOCK_TYPES':
       return { ...state,
         ...(0,external_lodash_namespaceObject.mapValues)((0,external_lodash_namespaceObject.keyBy)(action.blockTypes, 'name'), blockType => {
           return (0,external_lodash_namespaceObject.uniqBy)([...(0,external_lodash_namespaceObject.get)(blockType, ['variations'], []).map(variation => ({ ...variation,
             source: 'block'
-          })), ...(0,external_lodash_namespaceObject.get)(state, [blockType.name], []).filter(({
-            source
-          }) => 'block' !== source)], variation => variation.name);
+          })), ...(0,external_lodash_namespaceObject.get)(state, [blockType.name], []).filter(_ref2 => {
+            let {
+              source
+            } = _ref2;
+            return 'block' !== source;
+          })], variation => variation.name);
         })
       };
 
@@ -5519,7 +5538,10 @@ function blockVariations(state = {}, action) {
  */
 
 function createBlockNameSetterReducer(setActionType) {
-  return (state = null, action) => {
+  return function () {
+    let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    let action = arguments.length > 1 ? arguments[1] : undefined;
+
     switch (action.type) {
       case 'REMOVE_BLOCK_TYPES':
         if (action.names.indexOf(state) !== -1) {
@@ -5548,7 +5570,10 @@ const groupingBlockName = createBlockNameSetterReducer('SET_GROUPING_BLOCK_NAME'
  * @return {WPBlockCategory[]} Updated state.
  */
 
-function categories(state = DEFAULT_CATEGORIES, action) {
+function categories() {
+  let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DEFAULT_CATEGORIES;
+  let action = arguments.length > 1 ? arguments[1] : undefined;
+
   switch (action.type) {
     case 'SET_CATEGORIES':
       return action.categories || [];
@@ -5577,7 +5602,10 @@ function categories(state = DEFAULT_CATEGORIES, action) {
 
   return state;
 }
-function collections(state = {}, action) {
+function collections() {
+  let state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  let action = arguments.length > 1 ? arguments[1] : undefined;
+
   switch (action.type) {
     case 'ADD_BLOCK_COLLECTION':
       return { ...state,
@@ -6109,9 +6137,12 @@ function getGroupingBlockName(state) {
 const getChildBlockNames = rememo((state, blockName) => {
   return (0,external_lodash_namespaceObject.map)((0,external_lodash_namespaceObject.filter)(state.blockTypes, blockType => {
     return (0,external_lodash_namespaceObject.includes)(blockType.parent, blockName);
-  }), ({
-    name
-  }) => name);
+  }), _ref => {
+    let {
+      name
+    } = _ref;
+    return name;
+  });
 }, state => [state.blockTypes]);
 /**
  * Returns the block support value for a feature, if defined.
@@ -6527,10 +6558,11 @@ function unstable__bootstrapServerSideBlockDefinitions(definitions) {
  * @return {Object} Block settings.
  */
 
-function getBlockSettingsFromMetadata({
-  textdomain,
-  ...metadata
-}) {
+function getBlockSettingsFromMetadata(_ref) {
+  let {
+    textdomain,
+    ...metadata
+  } = _ref;
   const allowedFields = ['apiVersion', 'title', 'category', 'parent', 'icon', 'description', 'keywords', 'attributes', 'providesContext', 'usesContext', 'supports', 'styles', 'example', 'variations'];
   const settings = (0,external_lodash_namespaceObject.pick)(metadata, allowedFields);
 
@@ -6646,10 +6678,11 @@ function translateBlockSettingUsingI18nSchema(i18nSchema, settingValue, textdoma
  */
 
 
-function registerBlockCollection(namespace, {
-  title,
-  icon
-}) {
+function registerBlockCollection(namespace, _ref2) {
+  let {
+    title,
+    icon
+  } = _ref2;
   (0,external_wp_data_namespaceObject.dispatch)(store).addBlockCollection(namespace, title, icon);
 }
 /**
@@ -7027,7 +7060,10 @@ function v4(options, buf, offset) {
  * @return {Object} Block object.
  */
 
-function createBlock(name, attributes = {}, innerBlocks = []) {
+function createBlock(name) {
+  let attributes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  let innerBlocks = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+
   const sanitizedAttributes = __experimentalSanitizeBlockAttributes(name, attributes);
 
   const clientId = esm_browser_v4(); // Blocks are stored with a unique ID, the assigned type name, the block
@@ -7052,7 +7088,8 @@ function createBlock(name, attributes = {}, innerBlocks = []) {
  * @return {Object[]} Array of Block objects.
  */
 
-function createBlocksFromInnerBlocksTemplate(innerBlocksOrTemplate = []) {
+function createBlocksFromInnerBlocksTemplate() {
+  let innerBlocksOrTemplate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   return innerBlocksOrTemplate.map(innerBlock => {
     const innerBlockTemplate = Array.isArray(innerBlock) ? innerBlock : [innerBlock.name, innerBlock.attributes, innerBlock.innerBlocks];
     const [name, attributes, innerBlocks = []] = innerBlockTemplate;
@@ -7070,7 +7107,9 @@ function createBlocksFromInnerBlocksTemplate(innerBlocksOrTemplate = []) {
  * @return {Object} A cloned block.
  */
 
-function __experimentalCloneSanitizedBlock(block, mergeAttributes = {}, newInnerBlocks) {
+function __experimentalCloneSanitizedBlock(block) {
+  let mergeAttributes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  let newInnerBlocks = arguments.length > 2 ? arguments[2] : undefined;
   const clientId = esm_browser_v4();
 
   const sanitizedAttributes = __experimentalSanitizeBlockAttributes(block.name, { ...block.attributes,
@@ -7094,7 +7133,9 @@ function __experimentalCloneSanitizedBlock(block, mergeAttributes = {}, newInner
  * @return {Object} A cloned block.
  */
 
-function cloneBlock(block, mergeAttributes = {}, newInnerBlocks) {
+function cloneBlock(block) {
+  let mergeAttributes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  let newInnerBlocks = arguments.length > 2 ? arguments[2] : undefined;
   const clientId = esm_browser_v4();
   return { ...block,
     clientId,
@@ -7313,9 +7354,12 @@ function findTransform(transforms, predicate) {
 function getBlockTransforms(direction, blockTypeOrName) {
   // When retrieving transforms for all block types, recurse into self.
   if (blockTypeOrName === undefined) {
-    return (0,external_lodash_namespaceObject.flatMap)(registration_getBlockTypes(), ({
-      name
-    }) => getBlockTransforms(direction, name));
+    return (0,external_lodash_namespaceObject.flatMap)(registration_getBlockTypes(), _ref => {
+      let {
+        name
+      } = _ref;
+      return getBlockTransforms(direction, name);
+    });
   } // Validate that block type exists and has array of direction.
 
 
@@ -7565,7 +7609,8 @@ function normalizeBlockType(blockTypeOrName) {
  * @return {string} The block label.
  */
 
-function getBlockLabel(blockType, attributes, context = 'visual') {
+function getBlockLabel(blockType, attributes) {
+  let context = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'visual';
   const {
     __experimentalLabel: getLabel,
     title
@@ -7594,7 +7639,8 @@ function getBlockLabel(blockType, attributes, context = 'visual') {
  * @return {string} The block label.
  */
 
-function getAccessibleBlockLabel(blockType, attributes, position, direction = 'vertical') {
+function getAccessibleBlockLabel(blockType, attributes, position) {
+  let direction = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'vertical';
   // `title` is already localized, `label` is a user-supplied value.
   const title = blockType === null || blockType === void 0 ? void 0 : blockType.title;
   const label = blockType ? getBlockLabel(blockType, attributes, 'accessibility') : '';
@@ -8117,98 +8163,6 @@ var external_wp_autop_namespaceObject = window["wp"]["autop"];
 ;// CONCATENATED MODULE: external ["wp","isShallowEqual"]
 var external_wp_isShallowEqual_namespaceObject = window["wp"]["isShallowEqual"];
 var external_wp_isShallowEqual_default = /*#__PURE__*/__webpack_require__.n(external_wp_isShallowEqual_namespaceObject);
-;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-;// CONCATENATED MODULE: external ["wp","compose"]
-var external_wp_compose_namespaceObject = window["wp"]["compose"];
-;// CONCATENATED MODULE: ./packages/blocks/build-module/block-content-provider/index.js
-
-
-
-/**
- * WordPress dependencies
- */
-
-
-/**
- * Internal dependencies
- */
-
-
-const {
-  Consumer,
-  Provider
-} = (0,external_wp_element_namespaceObject.createContext)(() => {});
-/**
- * An internal block component used in block content serialization to inject
- * nested block content within the `save` implementation of the ancestor
- * component in which it is nested. The component provides a pre-bound
- * `BlockContent` component via context, which is used by the developer-facing
- * `InnerBlocks.Content` component to render block content.
- *
- * @example
- *
- * ```jsx
- * <BlockContentProvider innerBlocks={ innerBlocks }>
- * 	{ blockSaveElement }
- * </BlockContentProvider>
- * ```
- *
- * @param {Object}    props             Component props.
- * @param {WPElement} props.children    Block save result.
- * @param {Array}     props.innerBlocks Block(s) to serialize.
- *
- * @return {WPComponent} Element with BlockContent injected via context.
- */
-
-const BlockContentProvider = ({
-  children,
-  innerBlocks
-}) => {
-  const BlockContent = () => {
-    // Value is an array of blocks, so defer to block serializer
-    const html = serialize(innerBlocks, {
-      isInnerBlocks: true
-    }); // Use special-cased raw HTML tag to avoid default escaping
-
-    return (0,external_wp_element_namespaceObject.createElement)(external_wp_element_namespaceObject.RawHTML, null, html);
-  };
-
-  return (0,external_wp_element_namespaceObject.createElement)(Provider, {
-    value: BlockContent
-  }, children);
-};
-/**
- * A Higher Order Component used to inject BlockContent using context to the
- * wrapped component.
- *
- * @return {WPComponent} Enhanced component with injected BlockContent as prop.
- */
-
-
-const withBlockContentContext = (0,external_wp_compose_namespaceObject.createHigherOrderComponent)(OriginalComponent => {
-  return props => (0,external_wp_element_namespaceObject.createElement)(Consumer, null, context => (0,external_wp_element_namespaceObject.createElement)(OriginalComponent, _extends({}, props, {
-    BlockContent: context
-  })));
-}, 'withBlockContentContext');
-/* harmony default export */ var block_content_provider = (BlockContentProvider);
-//# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ./packages/blocks/build-module/api/serializer.js
 
 
@@ -8227,7 +8181,6 @@ const withBlockContentContext = (0,external_wp_compose_namespaceObject.createHig
 /**
  * Internal dependencies
  */
-
 
 
 
@@ -8266,19 +8219,42 @@ function getBlockMenuDefaultClassName(blockName) {
   return (0,external_wp_hooks_namespaceObject.applyFilters)('blocks.getBlockMenuDefaultClassName', className, blockName);
 }
 const blockPropsProvider = {};
+const innerBlocksPropsProvider = {};
 /**
  * Call within a save function to get the props for the block wrapper.
  *
  * @param {Object} props Optional. Props to pass to the element.
  */
 
-function getBlockProps(props = {}) {
+function getBlockProps() {
+  let props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   const {
     blockType,
     attributes
   } = blockPropsProvider;
   return (0,external_wp_hooks_namespaceObject.applyFilters)('blocks.getSaveContent.extraProps', { ...props
   }, blockType, attributes);
+}
+/**
+ * Call within a save function to get the props for the inner blocks wrapper.
+ *
+ * @param {Object} props Optional. Props to pass to the element.
+ */
+
+function getInnerBlocksProps() {
+  let props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  const {
+    innerBlocks
+  } = innerBlocksPropsProvider; // Value is an array of blocks, so defer to block serializer
+
+  const html = serializer_serialize(innerBlocks, {
+    isInnerBlocks: true
+  }); // Use special-cased raw HTML tag to avoid default escaping.
+
+  const children = (0,external_wp_element_namespaceObject.createElement)(external_wp_element_namespaceObject.RawHTML, null, html);
+  return { ...props,
+    children
+  };
 }
 /**
  * Given a block type containing a save render implementation and attributes, returns the
@@ -8291,7 +8267,8 @@ function getBlockProps(props = {}) {
  * @return {Object|string} Save element or raw HTML string.
  */
 
-function getSaveElement(blockTypeOrName, attributes, innerBlocks = []) {
+function getSaveElement(blockTypeOrName, attributes) {
+  let innerBlocks = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
   const blockType = normalizeBlockType(blockTypeOrName);
   let {
     save
@@ -8308,6 +8285,7 @@ function getSaveElement(blockTypeOrName, attributes, innerBlocks = []) {
 
   blockPropsProvider.blockType = blockType;
   blockPropsProvider.attributes = attributes;
+  innerBlocksPropsProvider.innerBlocks = innerBlocks;
   let element = save({
     attributes,
     innerBlocks
@@ -8337,10 +8315,7 @@ function getSaveElement(blockTypeOrName, attributes, innerBlocks = []) {
    */
 
 
-  element = (0,external_wp_hooks_namespaceObject.applyFilters)('blocks.getSaveElement', element, blockType, attributes);
-  return (0,external_wp_element_namespaceObject.createElement)(block_content_provider, {
-    innerBlocks: innerBlocks
-  }, element);
+  return (0,external_wp_hooks_namespaceObject.applyFilters)('blocks.getSaveElement', element, blockType, attributes);
 }
 /**
  * Given a block type containing a save render implementation and attributes, returns the
@@ -8471,9 +8446,10 @@ function getCommentDelimitedContent(rawBlockName, attributes, content) {
  * @return {string} Serialized block.
  */
 
-function serializeBlock(block, {
-  isInnerBlocks = false
-} = {}) {
+function serializeBlock(block) {
+  let {
+    isInnerBlocks = false
+  } = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   const blockName = block.name;
   const saveContent = getBlockInnerHTML(block);
 
@@ -8492,7 +8468,7 @@ function __unstableSerializeAndClean(blocks) {
     blocks = [];
   }
 
-  let content = serialize(blocks); // For compatibility, treat a post consisting of a
+  let content = serializer_serialize(blocks); // For compatibility, treat a post consisting of a
   // single freeform block as legacy content and apply
   // pre-block-editor removep'd content formatting.
 
@@ -8511,7 +8487,7 @@ function __unstableSerializeAndClean(blocks) {
  * @return {string} The post content.
  */
 
-function serialize(blocks, options) {
+function serializer_serialize(blocks, options) {
   return (0,external_lodash_namespaceObject.castArray)(blocks).map(block => serializeBlock(block, options)).join('\n\n');
 }
 //# sourceMappingURL=serializer.js.map
@@ -9167,7 +9143,13 @@ function createLogger() {
    * @return {Function} Augmented logger function.
    */
   function createLogHandler(logger) {
-    let log = (message, ...args) => logger('Block validation: ' + message, ...args); // In test environments, pre-process string substitutions to improve
+    let log = function (message) {
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      return logger('Block validation: ' + message, ...args);
+    }; // In test environments, pre-process string substitutions to improve
     // readability of error messages. We'd prefer to avoid pulling in this
     // dependency in runtime environments, and it can be dropped by a combo
     // of Webpack env substitution + UglifyJS dead code elimination.
@@ -9199,14 +9181,22 @@ function createQueuedLogger() {
   const queue = [];
   const logger = createLogger();
   return {
-    error(...args) {
+    error() {
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
       queue.push({
         log: logger.error,
         args
       });
     },
 
-    warning(...args) {
+    warning() {
+      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+
       queue.push({
         log: logger.warning,
         args
@@ -9455,7 +9445,8 @@ function getMeaningfulAttributePairs(token) {
  * @return {boolean} Whether two text tokens are equivalent.
  */
 
-function isEquivalentTextTokens(actual, expected, logger = createLogger()) {
+function isEquivalentTextTokens(actual, expected) {
+  let logger = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : createLogger();
   // This function is intentionally written as syntactically "ugly" as a hot
   // path optimization. Text is progressively normalized in order from least-
   // to-most operationally expensive, until the earliest point at which text
@@ -9563,7 +9554,9 @@ const isEqualAttributesOfName = {
  * @return {boolean} Whether attributes are equivalent.
  */
 
-function isEqualTagAttributePairs(actual, expected, logger = createLogger()) {
+function isEqualTagAttributePairs(actual, expected) {
+  let logger = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : createLogger();
+
   // Attributes is tokenized as tuples. Their lengths should match. This also
   // avoids us needing to check both attributes sets, since if A has any keys
   // which do not exist in B, we know the sets to be different.
@@ -9615,7 +9608,9 @@ function isEqualTagAttributePairs(actual, expected, logger = createLogger()) {
  */
 
 const isEqualTokensOfType = {
-  StartTag: (actual, expected, logger = createLogger()) => {
+  StartTag: function (actual, expected) {
+    let logger = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : createLogger();
+
     if (actual.tagName !== expected.tagName && // Optimization: Use short-circuit evaluation to defer case-
     // insensitive check on the assumption that the majority case will
     // have exactly equal tag names.
@@ -9663,7 +9658,9 @@ function getNextNonWhitespaceToken(tokens) {
  * @return {Object[]|null} Array of valid tokenized HTML elements, or null on error
  */
 
-function getHTMLTokens(html, logger = createLogger()) {
+function getHTMLTokens(html) {
+  let logger = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : createLogger();
+
   try {
     return new Tokenizer(new DecodeEntityParser()).tokenize(html);
   } catch (e) {
@@ -9707,7 +9704,9 @@ function isClosedByToken(currentToken, nextToken) {
  * @return {boolean} Whether HTML strings are equivalent.
  */
 
-function isEquivalentHTML(actual, expected, logger = createLogger()) {
+function isEquivalentHTML(actual, expected) {
+  let logger = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : createLogger();
+
   // Short-circuit if markup is identical.
   if (actual === expected) {
     return true;
@@ -9899,6 +9898,20 @@ function convertLegacyBlockNameAndAttributes(name, attributes) {
 
   if (name === 'core/query-loop') {
     name = 'core/post-template';
+  } // Convert Post Comment blocks in existing content to Comment blocks.
+  // TODO: Remove these checks when WordPress 6.0 is released.
+
+
+  if (name === 'core/post-comment-author') {
+    name = 'core/comment-author-name';
+  }
+
+  if (name === 'core/post-comment-content') {
+    name = 'core/comment-content';
+  }
+
+  if (name === 'core/post-comment-date') {
+    name = 'core/comment-date';
   }
 
   return [name, newAttributes];
@@ -9931,7 +9944,8 @@ function convertLegacyBlockNameAndAttributes(name, attributes) {
  * @return {string} An HTML string representing a block.
  */
 
-function serializeRawBlock(rawBlock, options = {}) {
+function serializeRawBlock(rawBlock) {
+  let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   const {
     isCommentDelimited = true
   } = options;
@@ -10367,11 +10381,11 @@ function getChildrenArray(children) {
  */
 
 
-function concat(...blockNodes) {
+function concat() {
   const result = [];
 
-  for (let i = 0; i < blockNodes.length; i++) {
-    const blockNode = (0,external_lodash_namespaceObject.castArray)(blockNodes[i]);
+  for (let i = 0; i < arguments.length; i++) {
+    const blockNode = (0,external_lodash_namespaceObject.castArray)(i < 0 || arguments.length <= i ? undefined : arguments[i]);
 
     for (let j = 0; j < blockNode.length; j++) {
       const child = blockNode[j];
@@ -10704,7 +10718,8 @@ function parseWithAttributeSchema(innerHTML, attributeSchema) {
  * @return {Object} All block attributes.
  */
 
-function getBlockAttributes(blockTypeOrName, innerHTML, attributes = {}) {
+function getBlockAttributes(blockTypeOrName, innerHTML) {
+  let attributes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   const blockType = normalizeBlockType(blockTypeOrName);
   const blockAttributes = (0,external_lodash_namespaceObject.mapValues)(blockType.attributes, (attributeSchema, attributeKey) => {
     return getBlockAttribute(attributeKey, attributeSchema, innerHTML, attributes);
@@ -11095,10 +11110,13 @@ function parseRawBlock(rawBlock) {
       console.groupEnd();
       /* eslint-enable no-console */
     } else {
-      validationIssues.forEach(({
-        log,
-        args
-      }) => log(...args));
+      validationIssues.forEach(_ref => {
+        let {
+          log,
+          args
+        } = _ref;
+        return log(...args);
+      });
     }
   }
 
@@ -11181,9 +11199,12 @@ function htmlToBlocks(html) {
   const doc = document.implementation.createHTMLDocument('');
   doc.body.innerHTML = html;
   return Array.from(doc.body.children).flatMap(node => {
-    const rawTransform = findTransform(getRawTransforms(), ({
-      isMatch
-    }) => isMatch(node));
+    const rawTransform = findTransform(getRawTransforms(), _ref => {
+      let {
+        isMatch
+      } = _ref;
+      return isMatch(node);
+    });
 
     if (!rawTransform) {
       return createBlock( // Should not be hardcoded.
@@ -11356,9 +11377,12 @@ function isList(node) {
 }
 
 function shallowTextContent(element) {
-  return Array.from(element.childNodes).map(({
-    nodeValue = ''
-  }) => nodeValue).join('');
+  return Array.from(element.childNodes).map(_ref => {
+    let {
+      nodeValue = ''
+    } = _ref;
+    return nodeValue;
+  }).join('');
 }
 
 function listReducer(node) {
@@ -11472,7 +11496,8 @@ function canHaveAnchor(node, schema) {
  */
 
 
-function wrapFigureContent(element, beforeElement = element) {
+function wrapFigureContent(element) {
+  let beforeElement = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : element;
   const figure = element.ownerDocument.createElement('figure');
   beforeElement.parentNode.insertBefore(figure, beforeElement);
   figure.appendChild(element);
@@ -11540,7 +11565,9 @@ var external_wp_shortcode_namespaceObject = window["wp"]["shortcode"];
 
 
 
-function segmentHTMLToShortcodeBlock(HTML, lastIndex = 0, excludedBlockNames = []) {
+function segmentHTMLToShortcodeBlock(HTML) {
+  let lastIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  let excludedBlockNames = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
   // Get all matches.
   const transformsFrom = getBlockTransforms('from');
   const transformation = findTransform(transformsFrom, transform => excludedBlockNames.indexOf(transform.blockName) === -1 && transform.type === 'shortcode' && (0,external_lodash_namespaceObject.some)((0,external_lodash_namespaceObject.castArray)(transform.tag), tag => (0,external_wp_shortcode_namespaceObject.regexp)(tag).test(HTML)));
@@ -11620,11 +11647,12 @@ function getBlockContentSchemaFromTransforms(transforms, context) {
     phrasingContentSchema,
     isPaste: context === 'paste'
   };
-  const schemas = transforms.map(({
-    isMatch,
-    blockName,
-    schema
-  }) => {
+  const schemas = transforms.map(_ref => {
+    let {
+      isMatch,
+      blockName,
+      schema
+    } = _ref;
     const hasAnchorSupport = registration_hasBlockSupport(blockName, 'anchor');
     schema = (0,external_lodash_namespaceObject.isFunction)(schema) ? schema(schemaArgs) : schema; // If the block does not has anchor support and the transform does not
     // provides an isMatch we can return the schema right away.
@@ -11675,8 +11703,8 @@ function getBlockContentSchemaFromTransforms(transforms, context) {
           // that returns if one of the source functions returns true.
 
 
-          return (...args) => {
-            return objValue(...args) || srcValue(...args);
+          return function () {
+            return objValue(...arguments) || srcValue(...arguments);
           };
         }
     }
@@ -11740,7 +11768,9 @@ function deepFilterNodeList(nodeList, filters, doc, schema) {
  * @return {string} The filtered HTML.
  */
 
-function deepFilterHTML(HTML, filters = [], schema) {
+function deepFilterHTML(HTML) {
+  let filters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  let schema = arguments.length > 2 ? arguments[2] : undefined;
   const doc = document.implementation.createHTMLDocument('');
   doc.body.innerHTML = HTML;
   deepFilterNodeList(doc.body.childNodes, filters, doc, schema);
@@ -11812,9 +11842,11 @@ function deprecatedGetPhrasingContentSchema(context) {
  * @return {Array} A list of blocks.
  */
 
-function rawHandler({
-  HTML = ''
-}) {
+function rawHandler(_ref) {
+  let {
+    HTML = ''
+  } = _ref;
+
   // If we detect block delimiters, parse entirely as blocks.
   if (HTML.indexOf('<!-- wp:') !== -1) {
     return parser_parse(HTML);
@@ -12044,7 +12076,7 @@ function msListConverter(node, doc) {
   const listItem = doc.createElement('li');
   let receivingNode = listNode; // Remove the first span with list info.
 
-  node.removeChild(node.firstElementChild); // Add content.
+  node.removeChild(node.firstChild); // Add content.
 
   while (node.firstChild) {
     listItem.appendChild(node.firstChild);
@@ -12052,10 +12084,10 @@ function msListConverter(node, doc) {
 
 
   while (level--) {
-    receivingNode = receivingNode.lastElementChild || receivingNode; // If it's a list, move pointer to the last item.
+    receivingNode = receivingNode.lastChild || receivingNode; // If it's a list, move pointer to the last item.
 
     if (ms_list_converter_isList(receivingNode)) {
-      receivingNode = receivingNode.lastElementChild || receivingNode;
+      receivingNode = receivingNode.lastChild || receivingNode;
     }
   } // Make sure we append to a list.
 
@@ -12402,13 +12434,14 @@ function filterInlineHTML(HTML, preserveWhiteSpace) {
  */
 
 
-function pasteHandler({
-  HTML = '',
-  plainText = '',
-  mode = 'AUTO',
-  tagName,
-  preserveWhiteSpace
-}) {
+function pasteHandler(_ref) {
+  let {
+    HTML = '',
+    plainText = '',
+    mode = 'AUTO',
+    tagName,
+    preserveWhiteSpace
+  } = _ref;
   // First of all, strip any meta tags.
   HTML = HTML.replace(/<meta[^>]+>/g, ''); // Strip Windows markers.
 
@@ -12575,8 +12608,11 @@ function categories_updateCategory(slug, category) {
  * @return {boolean} Whether the list of blocks matches a templates.
  */
 
-function doBlocksMatchTemplate(blocks = [], template = []) {
-  return blocks.length === template.length && (0,external_lodash_namespaceObject.every)(template, ([name,, innerBlocksTemplate], index) => {
+function doBlocksMatchTemplate() {
+  let blocks = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  let template = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  return blocks.length === template.length && (0,external_lodash_namespaceObject.every)(template, (_ref, index) => {
+    let [name,, innerBlocksTemplate] = _ref;
     const block = blocks[index];
     return name === block.name && doBlocksMatchTemplate(block.innerBlocks, innerBlocksTemplate);
   });
@@ -12595,13 +12631,17 @@ function doBlocksMatchTemplate(blocks = [], template = []) {
  * @return {Array} Updated Block list.
  */
 
-function synchronizeBlocksWithTemplate(blocks = [], template) {
+function synchronizeBlocksWithTemplate() {
+  let blocks = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  let template = arguments.length > 1 ? arguments[1] : undefined;
+
   // If no template is provided, return blocks unmodified.
   if (!template) {
     return blocks;
   }
 
-  return (0,external_lodash_namespaceObject.map)(template, ([name, attributes, innerBlocksTemplate], index) => {
+  return (0,external_lodash_namespaceObject.map)(template, (_ref2, index) => {
+    let [name, attributes, innerBlocksTemplate] = _ref2;
     const block = blocks[index];
 
     if (block && block.name === name) {
@@ -12738,6 +12778,100 @@ function synchronizeBlocksWithTemplate(blocks = [], template) {
 
 
 
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+;// CONCATENATED MODULE: external ["wp","compose"]
+var external_wp_compose_namespaceObject = window["wp"]["compose"];
+;// CONCATENATED MODULE: ./packages/blocks/build-module/block-content-provider/index.js
+
+
+
+/**
+ * WordPress dependencies
+ */
+
+
+/**
+ * Internal dependencies
+ */
+
+
+const {
+  Consumer,
+  Provider
+} = (0,external_wp_element_namespaceObject.createContext)(() => {});
+/**
+ * An internal block component used in block content serialization to inject
+ * nested block content within the `save` implementation of the ancestor
+ * component in which it is nested. The component provides a pre-bound
+ * `BlockContent` component via context, which is used by the developer-facing
+ * `InnerBlocks.Content` component to render block content.
+ *
+ * @example
+ *
+ * ```jsx
+ * <BlockContentProvider innerBlocks={ innerBlocks }>
+ * 	{ blockSaveElement }
+ * </BlockContentProvider>
+ * ```
+ *
+ * @param {Object}    props             Component props.
+ * @param {WPElement} props.children    Block save result.
+ * @param {Array}     props.innerBlocks Block(s) to serialize.
+ *
+ * @return {WPComponent} Element with BlockContent injected via context.
+ */
+
+const BlockContentProvider = _ref => {
+  let {
+    children,
+    innerBlocks
+  } = _ref;
+
+  const BlockContent = () => {
+    // Value is an array of blocks, so defer to block serializer
+    const html = serialize(innerBlocks, {
+      isInnerBlocks: true
+    }); // Use special-cased raw HTML tag to avoid default escaping
+
+    return createElement(RawHTML, null, html);
+  };
+
+  return createElement(Provider, {
+    value: BlockContent
+  }, children);
+};
+/**
+ * A Higher Order Component used to inject BlockContent using context to the
+ * wrapped component.
+ *
+ * @return {WPComponent} Enhanced component with injected BlockContent as prop.
+ */
+
+
+const withBlockContentContext = (0,external_wp_compose_namespaceObject.createHigherOrderComponent)(OriginalComponent => {
+  return props => (0,external_wp_element_namespaceObject.createElement)(Consumer, null, context => (0,external_wp_element_namespaceObject.createElement)(OriginalComponent, _extends({}, props, {
+    BlockContent: context
+  })));
+}, 'withBlockContentContext');
+/* harmony default export */ var block_content_provider = ((/* unused pure expression or super */ null && (BlockContentProvider)));
 //# sourceMappingURL=index.js.map
 ;// CONCATENATED MODULE: ./packages/blocks/build-module/index.js
 // A "block" is the abstract term used to describe units of markup that,

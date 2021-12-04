@@ -38,7 +38,7 @@ module.exports = window["wp"]["element"];
   \********************/
 /***/ (function(module) {
 
-module.exports = JSON.parse('{"apiVersion":2,"name":"ryanwelcher/my-great-plugin","title":"My Great Plugin","description":"My great plugin","version":"1.0.0","category":"text","attributes":{"numberOfPosts":{"type":"string","default":"5"}},"supports":{},"editorScript":"file:./build/index.js"}');
+module.exports = JSON.parse('{"apiVersion":2,"name":"codecrowd/my-great-plugin","title":"My Great Plugin","description":"My great plugin","version":"1.0.0","category":"text","attributes":{"numberOfPosts":{"type":"string","default":"5"}},"supports":{},"editorScript":"file:./build/index.js"}');
 
 /***/ })
 
@@ -138,6 +138,7 @@ const {
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", blockProps, "Hello from My Great Plugin (edit)");
   },
   save: props => {
+    const blockProps = _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps.save();
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Hello from My Great Plugin (save)");
   },
   ...settings

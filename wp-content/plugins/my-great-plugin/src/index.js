@@ -15,6 +15,8 @@ registerBlockType(name, {
     );
   },
   save: (props) => {
+    const blockProps = useBlockProps.save();
+
     return <div>Hello from My Great Plugin (save)</div>;
   },
   ...settings,
